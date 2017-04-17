@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ruhang Scheduler</title>
+    <script src="http://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/vue/2.2.6/vue.min.js"></script>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container" id="app">
+    <div class="page-header">
+        <h1>Ruhang Scheduler
+            <small><a  href="http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#scheduling" target="_blank"> 表达式如何写? 查看Spring Scheduler文档</a></small>
+        </h1>
+    </div>
+    <table class="table table table-hover">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>名称</th>
+            <th>API</th>
+            <th>表达式类型</th>
+            <th>表达式</th>
+            <th>状态</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tr v-for="task in tasks">
+            <td>{{task.id}}</td>
+            <td>{{task.name}}</td>
+            <td>{{task.api}}</td>
+            <td>{{task.type == 1 ? 'Corn' : 'FixedRate'}}</td>
+            <td>{{task.expression}}</td>
+            <td>{{task.status == 1 ? '已启动' : '已停止'}}</td>
+            <td>
+                <button v-if="task.status == 1" v-on:click="stop(task.id)" class="btn btn-warning">停止</button>
+                <button v-if="task.status == 2" v-on:click="start(task.id)" class="btn btn-info">启动</button>
+                <button v-if="task.status == 2" v-on:click="del(task.id)" class="btn btn-danger"  style="margin-left:5px">删除 </button>
+            </td>
+        </tr>
+    </table>
+    <hr/>
+    <button v-on:click="openModal" class="btn btn-block btn-primary">添加任务</button>
+    <div class="modal fade" tabindex="-1" role="dialog" id="modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">添加任务</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">名称</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" v-model="name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">API</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" v-model="api" placeholder="http://api.kuaijishizi.com/example">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">表达式类型</label>
+                            <div class="col-sm-8">
+                                <select class="form-control" v-model="type">
+                                    <option value="" selected>请选择</option>
+                                    <option value="1">Corn</option>
+                                    <option value="2">FixedRate(秒)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">表达式值</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" v-model="expression"
+                                       placeholder="例子，Cron：cron = 0 4 00 ? * MON；FixedRate：2">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" v-on:click="add">确认</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+</div>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            name: '',
+            api: '',
+            type: '',
+            expression: '',
+            tasks: []
+        },
+        mounted: function () {
+            this.refresh();
+        },
+        methods: {
+            refresh:function () {
+                $.post('/list').done(function (result) {
+                    app.tasks = result;
+                });
+            },
+            openModal: function () {
+                $('#modal').modal('show');
+            },
+            add: function () {
+                let data = {
+                    name: this.name,
+                    api: this.api,
+                    type: this.type,
+                    expression: this.expression
+                };
+                $.post('/add', data).done(function (task) {
+                    $('#modal').modal('hide');
+                    app.tasks.push(task);
+                }).fail(function () {
+                    alert('添加失败');
+                });
+            },
+            start: function (id) {
+                $.post('/start', {id: id}).done(function (success) {
+                    if (success) {
+                        app.refresh();
+                    } else {
+                        alert('启动失败');
+                    }
+                }).fail(function () {
+                    alert('启动失败');
+                });
+            },
+            stop: function (id) {
+                $.post('/stop', {id: id}).done(function (success) {
+                    if (success) {
+                        app.refresh();
+                    } else {
+                        alert('停止失败');
+                    }
+                }).fail(function () {
+                    alert('停止失败');
+                });
+            },
+            del: function (id) {
+                var yes = window.confirm('你确定要删除吗？');
+                if (yes) {
+                    $.post('/delete', {id: id}).done(function (success) {
+                        if (success) {
+                            app.refresh();
+                        } else {
+                            alert('删除失败');
+                        }
+                    }).fail(function () {
+                        alert('删除失败');
+                    });
+                }
+            }
+        }
+    })
+
+</script>
+</body>
+</html>
