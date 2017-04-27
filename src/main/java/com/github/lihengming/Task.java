@@ -1,4 +1,4 @@
-package com.ruhang;
+package com.github.lihengming;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

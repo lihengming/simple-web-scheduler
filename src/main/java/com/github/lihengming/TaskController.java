@@ -1,4 +1,4 @@
-package com.ruhang;
+package com.github.lihengming;
 
 import com.github.kevinsawicki.http.HttpRequest;
 import org.slf4j.Logger;

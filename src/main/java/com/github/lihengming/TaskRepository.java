@@ -1,4 +1,4 @@
-package com.ruhang;
+package com.github.lihengming;
 
 import org.springframework.data.repository.CrudRepository;
 

@@ -1,4 +1,4 @@
-package com.ruhang;
+package com.github.lihengming;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

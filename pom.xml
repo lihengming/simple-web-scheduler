@@ -3,13 +3,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.ruhang</groupId>
-	<artifactId>ruhang-scheduler</artifactId>
-	<version>0.0.1</version>
+	<groupId>com.github.lihengming</groupId>
+	<artifactId>simple-web-scheduler</artifactId>
+	<version>1.0</version>
 	<packaging>jar</packaging>
 
-	<name>ruhang-scheduler</name>
-	<description>Demo project for Spring Boot</description>
+	<name>Simple Web Scheduler</name>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
